@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
+  console.log('收到扣图请求');
   try {
     const formData = await req.formData();
     const image = formData.get('image') as File;
