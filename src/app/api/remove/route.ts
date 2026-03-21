@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'edge'; // 声明此 API 路由运行在 Cloudflare Edge Runtime
+
 export async function POST(req: NextRequest) {
   console.log('收到扣图请求');
   try {
