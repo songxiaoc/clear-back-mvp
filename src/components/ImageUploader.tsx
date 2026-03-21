@@ -2,37 +2,18 @@
 import { useState, useEffect } from 'react';
 
 export default function ImageUploader() {
-  const [loading, setLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState('');
-  const [resultImg, setResultImg] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resultImg, setResultImg] = useState<string | null>(null);
+  const [originalImg, setOriginalImg] = useState<string | null>(null);
+  const [sliderPos, setSliderPos] = useState(50);
+  const [loadingText, setLoadingText] = useState('📸 选择一张美照上传');
 
-  // 确保组件已挂载，避免水合警告
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 动态更新 loading 文案
-  useEffect(() => {
-    if (!loading) return;
-    const texts = [
-      '🚀 图片飞奔上传中...',
-      '🧠 AI 正在精心描绘边缘...',
-      '✨ 魔法即将完成...',
-      '⌛ 还在努力，请稍微再等一下下哦...'
-    ];
-    let i = 0;
-    setLoadingText(texts[0]);
-    const timer = setInterval(() => {
-      i++;
-      if (i < texts.length) {
-        setLoadingText(texts[i]);
-      }
-    }, 4000); // 每4秒换一次文案
-    return () => clearInterval(timer);
-  }, [loading]);
-
-  // 前端图片压缩函数
+  // 纯前端图片压缩引擎
   const compressImage = (file: File, maxSizeMB: number = 1): Promise<File> => {
     return new Promise((resolve) => {
       if (file.size <= maxSizeMB * 1024 * 1024) {
@@ -49,7 +30,6 @@ export default function ImageUploader() {
         let width = img.width;
         let height = img.height;
         
-        // 如果图片实在太大，等比例缩小尺寸
         const maxDimension = 1920;
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
@@ -71,7 +51,6 @@ export default function ImageUploader() {
         
         ctx.drawImage(img, 0, 0, width, height);
         
-        // 降低质量进行压缩
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name, {
@@ -82,7 +61,7 @@ export default function ImageUploader() {
           } else {
             resolve(file);
           }
-        }, file.type, 0.7); // 70% 的质量
+        }, file.type, 0.8);
       };
       img.src = objectUrl;
     });
@@ -93,14 +72,28 @@ export default function ImageUploader() {
     if (!rawFile) return;
 
     setLoading(true);
-    setResultImg(null); // 清除上次的结果
+    setResultImg(null); 
+    setOriginalImg(URL.createObjectURL(rawFile)); 
+    setSliderPos(50); 
     
-    try {
-      // 1. 压缩图片
-      const file = await compressImage(rawFile, 0.8); // 目标压缩到 0.8MB 以下
-      console.log(`压缩前: ${(rawFile.size/1024/1024).toFixed(2)}MB, 压缩后: ${(file.size/1024/1024).toFixed(2)}MB`);
+    // 动态进度文案
+    const texts = [
+      '🚀 图片飞奔上传中...',
+      '🧠 AI 正在精心描绘边缘...',
+      '✨ 魔法即将完成...',
+      '⌛ 还在努力，请稍微再等一下下哦...'
+    ];
+    let i = 0;
+    setLoadingText(texts[0]);
+    const timer = setInterval(() => {
+      i++;
+      if (i < texts.length) {
+        setLoadingText(texts[i]);
+      }
+    }, 4000);
 
-      // 2. 发起请求
+    try {
+      const file = await compressImage(rawFile, 0.8); 
       const formData = new FormData();
       formData.append('image', file);
 
@@ -115,9 +108,13 @@ export default function ImageUploader() {
     } catch (err: any) {
       alert(err.message || '哎呀，出错了！');
     } finally {
+      clearInterval(timer);
       setLoading(false);
+      setLoadingText('📸 选择一张美照上传');
     }
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col items-center p-10 space-y-6">
@@ -125,7 +122,7 @@ export default function ImageUploader() {
       <label 
         htmlFor="upload" 
         className={`px-6 py-3 rounded-full cursor-pointer transition font-medium shadow-md ${
-          !mounted ? 'bg-blue-600 text-white' : (loading ? 'bg-blue-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700')
+          loading ? 'bg-blue-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
         }`}
       >
         {loading ? (
@@ -136,16 +133,50 @@ export default function ImageUploader() {
         ) : '📸 选择一张美照上传'}
       </label>
 
-      {resultImg && (
-        <div className="mt-8 flex flex-col items-center animate-in fade-in duration-500">
-          <p className="text-gray-500 mb-4 text-sm">✨ 处理完成啦！请直接下载：</p>
-          <div className="bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] rounded-xl shadow-xl overflow-hidden border border-gray-100 p-2">
-             <img src={resultImg} className="max-w-md w-full object-contain rounded-lg" alt="Result" />
+      {resultImg && originalImg && (
+        <div className="mt-8 flex flex-col items-center animate-in fade-in duration-500 w-full max-w-3xl">
+          <p className="text-gray-500 mb-4 text-sm font-medium">✨ 见证奇迹的时刻！左右滑动查看对比：</p>
+
+          {/* 🌟 核心：滑块对比区 */}
+          <div className="relative w-full aspect-auto rounded-xl shadow-2xl overflow-hidden border border-gray-200 select-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+            
+            {/* 1. 底层：处理后的透明图片 */}
+            <img src={resultImg} className="block w-full h-auto object-contain pointer-events-none" alt="Result" />
+
+            {/* 2. 顶层：原图 (通过 clip-path 动态裁剪右侧) */}
+            <img
+              src={originalImg}
+              className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none bg-white"
+              style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
+              alt="Original"
+            />
+
+            {/* 3. 控制层：隐形的滑动条 */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={sliderPos}
+              onChange={(e) => setSliderPos(Number(e.target.value))}
+              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0"
+            />
+
+            {/* 4. 视觉层：中间的滑动指示线与按钮 */}
+            <div
+              className="absolute top-0 bottom-0 w-1 bg-white pointer-events-none z-10 shadow-[0_0_10px_rgba(0,0,0,0.3)]"
+              style={{ left: `${sliderPos}%`, transform: 'translateX(-50%)' }}
+            >
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+            </div>
           </div>
+
           <a
             href={resultImg}
             download="clear-back-result.png"
-            className="mt-6 bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-900 transition font-medium shadow-md flex items-center gap-2"
+            className="mt-8 bg-gray-900 text-white px-8 py-3 rounded-full hover:bg-black transition font-medium shadow-md flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             下载透明背景图
@@ -155,4 +186,3 @@ export default function ImageUploader() {
     </div>
   );
 }
-
