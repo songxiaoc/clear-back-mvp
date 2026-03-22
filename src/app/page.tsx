@@ -1,21 +1,31 @@
-import ImageUploader from '@/components/ImageUploader';
+import AuthButton from "@/components/AuthButton";
+import ImageUploader from "@/components/ImageUploader";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 tracking-tight">FocusCut Pro</h1>
-        <p className="text-gray-500 text-lg">AI 驱动的极速透明背景剥离引擎</p>
+    <main className="flex-1 flex flex-col">
+      <header className="flex items-center justify-between px-8 py-4 bg-white shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-black rounded-lg"></div>
+          <h1 className="text-xl font-bold tracking-tight">FocusCut Pro</h1>
+        </div>
+        <AuthButton />
+      </header>
+
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="max-w-2xl w-full text-center space-y-8">
+          <h2 className="text-4xl font-extrabold text-gray-900">
+            一键全自动抠图神器
+          </h2>
+          <p className="text-lg text-gray-500">
+            上传图片，AI 瞬间帮你分离前景与背景，效率提升百倍。
+          </p>
+          
+          <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+            <ImageUploader />
+          </div>
+        </div>
       </div>
-      
-      <div className="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full max-w-2xl border border-gray-100/50 backdrop-blur-sm">
-        <ImageUploader />
-      </div>
-      
-      <footer className="mt-16 text-center text-sm text-gray-400">
-        <p>Built with ❤️ by 阿淞 & 晓晓</p>
-      </footer>
     </main>
   );
 }
-
