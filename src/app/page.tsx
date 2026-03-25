@@ -1,5 +1,6 @@
 import AuthButton from "@/components/AuthButton";
 import ImageUploader from "@/components/ImageUploader";
+import PricingSection from "@/components/PricingSection";
 
 export default function Home() {
   return (
@@ -26,6 +27,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      {/* Pricing Section */}
+      <PricingSection />
     </main>
   );
 }
