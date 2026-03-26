@@ -121,8 +121,8 @@ export default function ImageUploader() {
       <input type="file" accept="image/*" onChange={handleUpload} className="hidden" id="upload" />
       <label 
         htmlFor="upload" 
-        className={`px-6 py-3 rounded-full cursor-pointer transition font-medium shadow-md ${
-          loading ? 'bg-blue-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
+        className={`px-7 py-3 rounded-full cursor-pointer transition-all font-semibold text-sm tracking-wide shadow-sm ${
+          loading ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed' : 'bg-neutral-900 text-white hover:bg-neutral-700'
         }`}
       >
         {loading ? (
@@ -176,7 +176,7 @@ export default function ImageUploader() {
           <a
             href={resultImg}
             download="clear-back-result.png"
-            className="mt-8 bg-gray-900 text-white px-8 py-3 rounded-full hover:bg-black transition font-medium shadow-md flex items-center gap-2"
+            className="mt-8 bg-neutral-900 text-white px-8 py-3 rounded-full hover:bg-neutral-700 transition-all font-semibold text-sm shadow-sm flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             下载透明背景图

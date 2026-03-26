@@ -1,121 +1,135 @@
 "use client";
 
-import { Check, Sparkles, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tiers = [
   {
-    name: "Free Hook",
-    id: "tier-free",
+    name: "Starter",
     price: "$0",
-    description: "Perfect for testing the magic. Zero commitment.",
+    period: "",
+    description: "Try it out, no strings attached.",
     features: [
-      "3 High-Res downloads per month",
-      "Unlimited low-res previews",
-      "Standard B/A slider",
+      "5 free credits on signup",
+      "High-resolution downloads",
+      "Watermark-free exports",
       "Community support",
     ],
-    cta: "Start for Free",
-    mostPopular: false,
+    cta: "Get Started",
+    popular: false,
   },
   {
     name: "Creator Pack",
-    id: "tier-credits",
-    price: "$4.90",
-    description: "Pay as you go. The most flexible way to scale.",
+    price: "$4.99",
+    period: "one-time",
+    description: "Pay once, use anytime. No expiration.",
     features: [
-      "25 High-Res downloads",
-      "No expiration date",
-      "Priority background removal",
-      "Batch processing (Up to 5)",
-      "Commercial usage rights",
+      "40 high-res downloads",
+      "Never expires",
+      "Priority processing",
+      "Batch upload (up to 10)",
+      "Commercial license",
     ],
     cta: "Buy Credits",
-    mostPopular: true,
+    popular: true,
   },
 ];
 
 export default function PricingSection() {
   return (
-    <section className="relative w-full min-h-screen bg-[#0a0a0a] py-24 px-6 overflow-hidden flex items-center justify-center font-sans">
-      {/* Background Atmosphere: Radial gradient + noise overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-amber-900/20 via-[#0a0a0a] to-[#0a0a0a] -z-10" />
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none -z-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <section className="w-full bg-[#fafaf8] py-24 px-6 border-t border-neutral-200/60">
+      <div className="max-w-4xl mx-auto">
 
-      <div className="max-w-5xl w-full mx-auto flex flex-col items-center">
-        {/* Header Section */}
-        <motion.div 
+        {/* Header */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center max-w-2xl mb-16"
+          viewport={{ once: true }}
+          className="text-center mb-16"
         >
-          <h2 className="text-amber-500 font-semibold tracking-wider uppercase text-sm mb-3">
-            Simple, Transparent Pricing
+          <span className="inline-block text-xs font-medium tracking-widest uppercase text-neutral-500 mb-3">
+            Pricing
+          </span>
+          <h2 className="text-4xl md:text-5xl font-bold text-neutral-900 mb-4 tracking-tight">
+            Pay for pixels,{" "}
+            <span className="text-neutral-400">not promises.</span>
           </h2>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-            Pay for the <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">Pixels</span>, <br className="hidden md:block"/> Not the Promise.
-          </h1>
-          <p className="text-zinc-400 text-lg">
-            Start free, scale when you need to. No sneaky subscriptions.
+          <p className="text-neutral-500 text-base max-w-md mx-auto leading-relaxed">
+            Start free. Scale when you need to.{" "}
+            No subscriptions, no surprises.
           </p>
         </motion.div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl relative">
-          {tiers.map((tier, index) => (
+        {/* Cards */}
+        <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          {tiers.map((tier, i) => (
             <motion.div
-              key={tier.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              className={`relative flex flex-col p-8 rounded-3xl backdrop-blur-xl transition-all duration-300 ${
-                tier.mostPopular
-                  ? "bg-white/5 border border-amber-500/50 shadow-[0_0_40px_-15px_rgba(245,158,11,0.3)] hover:border-amber-500 hover:shadow-[0_0_60px_-15px_rgba(245,158,11,0.5)]"
-                  : "bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] hover:border-white/20"
+              key={tier.name}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: i * 0.1 }}
+              viewport={{ once: true }}
+              className={`relative flex flex-col rounded-2xl p-8 border transition-shadow ${
+                tier.popular
+                  ? "bg-neutral-900 border-neutral-800 shadow-xl"
+                  : "bg-white border-neutral-200 shadow-sm hover:shadow-md"
               }`}
             >
-              {tier.mostPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-amber-500 to-orange-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-lg">
-                    <Zap size={12} className="fill-black" /> Sweet Spot
-                  </span>
-                </div>
+              {tier.popular && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest uppercase bg-white text-neutral-900 border border-neutral-300 px-3 py-1 rounded-full shadow-sm">
+                  Most Popular
+                </span>
               )}
 
-              <div className="mb-8">
-                <h3 className="text-xl font-medium text-white mb-2">{tier.name}</h3>
-                <p className="text-zinc-400 text-sm h-10">{tier.description}</p>
-                <div className="mt-6 flex items-baseline gap-2">
-                  <span className="text-5xl font-bold text-white">{tier.price}</span>
-                  {tier.mostPopular && <span className="text-zinc-500">/ 25 credits</span>}
+              {/* Plan info */}
+              <div className="mb-6">
+                <p className={`text-xs font-semibold tracking-widest uppercase mb-1 ${tier.popular ? "text-neutral-400" : "text-neutral-500"}`}>
+                  {tier.name}
+                </p>
+                <p className={`text-sm mb-5 ${tier.popular ? "text-neutral-400" : "text-neutral-500"}`}>
+                  {tier.description}
+                </p>
+                <div className="flex items-end gap-2">
+                  <span className={`text-5xl font-bold tracking-tight ${tier.popular ? "text-white" : "text-neutral-900"}`}>
+                    {tier.price}
+                  </span>
+                  {tier.period && (
+                    <span className={`text-sm pb-1.5 ${tier.popular ? "text-neutral-500" : "text-neutral-400"}`}>
+                      {tier.period}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8 flex-1">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-zinc-300 text-sm">
-                    <div className={`p-1 rounded-full ${tier.mostPopular ? 'bg-amber-500/20 text-amber-500' : 'bg-white/10 text-white'}`}>
-                      <Check size={14} strokeWidth={3} />
-                    </div>
-                    {feature}
+              {/* Features */}
+              <ul className="flex-1 space-y-3 mb-8">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3">
+                    <span className={`mt-0.5 flex-shrink-0 rounded-full p-0.5 ${tier.popular ? "bg-white/10 text-white" : "bg-neutral-100 text-neutral-600"}`}>
+                      <Check size={12} strokeWidth={3} />
+                    </span>
+                    <span className={`text-sm ${tier.popular ? "text-neutral-300" : "text-neutral-600"}`}>
+                      {f}
+                    </span>
                   </li>
                 ))}
               </ul>
 
+              {/* CTA */}
               <button
-                className={`w-full py-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-                  tier.mostPopular
-                    ? "bg-amber-500 text-black hover:bg-amber-400 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-                    : "bg-white/10 text-white hover:bg-white/20 hover:scale-[1.02] active:scale-95"
+                className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${
+                  tier.popular
+                    ? "bg-white text-neutral-900 hover:bg-neutral-100"
+                    : "bg-neutral-900 text-white hover:bg-neutral-800"
                 }`}
               >
                 {tier.cta}
-                {tier.mostPopular && <Sparkles size={16} />}
               </button>
             </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );
