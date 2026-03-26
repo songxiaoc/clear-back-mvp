@@ -8,6 +8,26 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 import { getDb, users, transactions } from '@/db';
 import { eq, desc } from 'drizzle-orm';
 
+interface CloudflareEnv {
+  DB: D1Database;
+}
+
+interface HistoryItem {
+  id: string;
+  label: string;
+  amount: string;
+  date: string;
+  type: 'earn' | 'spend';
+}
+
+type ExtendedUser = {
+  id?: string;
+  credits?: number;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -16,10 +36,10 @@ export default async function DashboardPage() {
   }
 
   let userCredits = 5;
-  let history: any[] = [];
+  let history: HistoryItem[] = [];
 
   try {
-    const { env } = getRequestContext();
+    const { env } = getRequestContext() as { env: CloudflareEnv };
     const db = getDb(env);
 
     const [user] = await db
@@ -32,23 +52,30 @@ export default async function DashboardPage() {
       userCredits = user.credits;
     }
 
-    const txs = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.userId, (session.user as any).id))
-      .orderBy(desc(transactions.createdAt))
-      .limit(10);
+    const extUser = session.user as ExtendedUser;
+    if (extUser.id) {
+      const txs = await db
+        .select()
+        .from(transactions)
+        .where(eq(transactions.userId, extUser.id))
+        .orderBy(desc(transactions.createdAt))
+        .limit(10);
 
-    history = txs.map(tx => ({
-      id: tx.id,
-      label: tx.description || tx.type,
-      amount: tx.amount > 0 ? `+${tx.amount}` : `${tx.amount}`,
-      date: new Date(tx.createdAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      type: tx.amount > 0 ? 'earn' : 'spend',
-    }));
+      history = txs.map(tx => ({
+        id: tx.id,
+        label: tx.description ?? tx.type,
+        amount: tx.amount > 0 ? `+${tx.amount}` : `${tx.amount}`,
+        date: new Date(tx.createdAt ?? Date.now()).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        }),
+        type: tx.amount > 0 ? 'earn' : 'spend',
+      }));
+    }
   } catch (e) {
     console.error('Dashboard DB error:', e);
   }
+
+  const user = session.user as ExtendedUser;
 
   return (
     <div className="flex-1 bg-[#fafaf8] min-h-screen">
@@ -69,10 +96,10 @@ export default async function DashboardPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         <div className="flex items-center gap-4">
-          <img src={session.user?.image || ""} alt="Avatar" className="w-14 h-14 rounded-full border border-neutral-200" />
+          <img src={user?.image || ""} alt="Avatar" className="w-14 h-14 rounded-full border border-neutral-200" />
           <div>
-            <h1 className="text-xl font-semibold text-neutral-900">{session.user?.name}</h1>
-            <p className="text-sm text-neutral-500">{session.user?.email}</p>
+            <h1 className="text-xl font-semibold text-neutral-900">{user?.name}</h1>
+            <p className="text-sm text-neutral-500">{user?.email}</p>
           </div>
         </div>
 
