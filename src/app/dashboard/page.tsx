@@ -20,14 +20,6 @@ interface HistoryItem {
   type: 'earn' | 'spend';
 }
 
-type ExtendedUser = {
-  id?: string;
-  credits?: number;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-};
-
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -42,40 +34,54 @@ export default async function DashboardPage() {
     const { env } = getRequestContext() as { env: CloudflareEnv };
     const db = getDb(env);
 
-    const [user] = await db
-      .select({ credits: users.credits })
+    let [user] = await db
+      .select({ credits: users.credits, id: users.id })
       .from(users)
       .where(eq(users.email, session.user.email))
       .limit(1);
 
-    if (user) {
-      userCredits = user.credits;
+    if (!user) {
+      const userId = crypto.randomUUID();
+      await db.insert(users).values({
+        id: userId,
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+        credits: 5,
+        createdAt: Date.now(),
+      });
+      await db.insert(transactions).values({
+        id: crypto.randomUUID(),
+        userId,
+        type: 'grant',
+        amount: 5,
+        description: 'Welcome gift',
+        createdAt: Date.now(),
+      });
+      user = { credits: 5, id: userId };
     }
 
-    const extUser = session.user as ExtendedUser;
-    if (extUser.id) {
-      const txs = await db
-        .select()
-        .from(transactions)
-        .where(eq(transactions.userId, extUser.id))
-        .orderBy(desc(transactions.createdAt))
-        .limit(10);
+    userCredits = user.credits;
 
-      history = txs.map(tx => ({
-        id: tx.id,
-        label: tx.description ?? tx.type,
-        amount: tx.amount > 0 ? `+${tx.amount}` : `${tx.amount}`,
-        date: new Date(tx.createdAt ?? Date.now()).toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric'
-        }),
-        type: tx.amount > 0 ? 'earn' : 'spend',
-      }));
-    }
+    const txs = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.userId, user.id))
+      .orderBy(desc(transactions.createdAt))
+      .limit(10);
+
+    history = txs.map(tx => ({
+      id: tx.id,
+      label: tx.description ?? tx.type,
+      amount: tx.amount > 0 ? `+${tx.amount}` : `${tx.amount}`,
+      date: new Date(tx.createdAt ?? Date.now()).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+      }),
+      type: tx.amount > 0 ? 'earn' : 'spend',
+    }));
   } catch (e) {
     console.error('Dashboard DB error:', e);
   }
-
-  const user = session.user as ExtendedUser;
 
   return (
     <div className="flex-1 bg-[#fafaf8] min-h-screen">
@@ -96,10 +102,10 @@ export default async function DashboardPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         <div className="flex items-center gap-4">
-          <img src={user?.image || ""} alt="Avatar" className="w-14 h-14 rounded-full border border-neutral-200" />
+          <img src={session.user?.image || ""} alt="Avatar" className="w-14 h-14 rounded-full border border-neutral-200" />
           <div>
-            <h1 className="text-xl font-semibold text-neutral-900">{user?.name}</h1>
-            <p className="text-sm text-neutral-500">{user?.email}</p>
+            <h1 className="text-xl font-semibold text-neutral-900">{session.user?.name}</h1>
+            <p className="text-sm text-neutral-500">{session.user?.email}</p>
           </div>
         </div>
 
