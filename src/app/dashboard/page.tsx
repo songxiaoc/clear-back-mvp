@@ -31,7 +31,7 @@ export default async function DashboardPage() {
   let history: HistoryItem[] = [];
 
   try {
-    const { env } = getRequestContext() as { env: CloudflareEnv };
+    const { env } = getRequestContext() as unknown as { env: CloudflareEnv };
     const db = getDb(env);
     const now = new Date().getTime();
 
