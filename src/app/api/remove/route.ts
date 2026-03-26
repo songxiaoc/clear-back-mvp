@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge'; // 声明此 API 路由运行在 Cloudflare Edge Runtime
+export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   console.log('收到扣图请求');
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData: any = await response.json().catch(() => ({}));
       throw new Error(errorData.errors?.[0]?.title || '扣图服务暂时打盹了');
     }
 
