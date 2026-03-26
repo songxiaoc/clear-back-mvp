@@ -33,6 +33,7 @@ export default async function DashboardPage() {
   try {
     const { env } = getRequestContext() as { env: CloudflareEnv };
     const db = getDb(env);
+    const now = new Date().getTime();
 
     let [user] = await db
       .select({ credits: users.credits, id: users.id })
@@ -48,7 +49,7 @@ export default async function DashboardPage() {
         email: session.user.email,
         image: session.user.image,
         credits: 5,
-        createdAt: Date.now(),
+        createdAt: now,
       });
       await db.insert(transactions).values({
         id: crypto.randomUUID(),
@@ -56,7 +57,7 @@ export default async function DashboardPage() {
         type: 'grant',
         amount: 5,
         description: 'Welcome gift',
-        createdAt: Date.now(),
+        createdAt: now,
       });
       user = { credits: 5, id: userId };
     }
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
       id: tx.id,
       label: tx.description ?? tx.type,
       amount: tx.amount > 0 ? `+${tx.amount}` : `${tx.amount}`,
-      date: new Date(tx.createdAt ?? Date.now()).toLocaleDateString('en-US', {
+      date: new Date(tx.createdAt ?? now).toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric'
       }),
       type: tx.amount > 0 ? 'earn' : 'spend',
