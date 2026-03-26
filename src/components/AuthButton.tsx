@@ -19,7 +19,7 @@ export default function AuthButton() {
         >
           <span className="text-blue-500 text-lg">⚡</span>
           <span className="text-sm font-semibold text-blue-700 group-hover:text-blue-800">
-            5 Credits
+            {(session.user as any)?.credits || 5} Credits
           </span>
         </Link>
 
