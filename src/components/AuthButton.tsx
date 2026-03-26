@@ -13,16 +13,6 @@ export default function AuthButton() {
   if (session) {
     return (
       <div className="flex items-center gap-3">
-        <Link
-          href="/dashboard"
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full transition-colors group"
-        >
-          <span className="text-blue-500 text-lg">⚡</span>
-          <span className="text-sm font-semibold text-blue-700 group-hover:text-blue-800">
-            {(session.user as any)?.credits || 5} Credits
-          </span>
-        </Link>
-
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
           <Link
             href="/dashboard"
